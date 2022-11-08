@@ -1,13 +1,8 @@
 package gui;
 
-import java.beans.Expression;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,11 +18,8 @@ import javafx.scene.text.Text;
 
 public class Calculator extends VBox implements EventHandler<ActionEvent> {
 
-	String number1 = "";
-	String number2 = "";
-	String operator;
+	String expresion = "";
 	Text displayText;
-	int op = 0;
 
 	public Calculator() {
 		super(10);
@@ -137,86 +129,83 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 
 		Button b = (Button) event.getSource();
 		String value = b.getText();
-		String expression = displayText.getText();
-		String[] operadores = new String[] { "+", "-", "*", "/" };
 
-		try {
-			if (!Arrays.asList(operadores).contains(value) && value != "C" && value != "=") {
-				if (op == 0) {
-					number1 += value;
-					displayText.setText(number1);
-
-				} else {
-					number2 += value;
-					displayText.setText(number1 + operator + number2);
-
-				}
-			} else if (Arrays.asList(operadores).contains(value) && op<1)  {
-				operator = value;
-				if (value == "+") {
-					op = 1;
-				} else if (value == "-") {
-					op = 2;
-				} else if (value == "*") {
-					op = 3;
-				} else {
-					op = 4;
-				}
-				displayText.setText(number1 + operator);
-			} else if (value == "C") {
-				Limpiar();
+		if (value != "=" && value != "C") {
+			expresion = String.join("", expresion, value);
+			displayText.setText(expresion);
+		} else {
+			if (value == "C") {
 				displayText.setText("");
-
-			} else if (value == "="){
-				displayText.setText(Evaluar(number1, number2, op).toString());
-			}else {
-				number1=Evaluar(number1, number2, op).toString();
-				number2="";
-				operator=value;
-				if (value == "+") {
-					op = 1;
-				} else if (value == "-") {
-					op = 2;
-				} else if (value == "*") {
-					op = 3;
-				} else {
-					op = 4;
-				}			
-				displayText.setText(number1 + operator);
-
+				expresion = "";
+			} else if (value == "=") {
+				try {
+					expresion = cOperacion(expresion);
+					displayText.setText(expresion);
+				} catch (Exception e) {
+					displayText.setText("Error");
+					expresion = "";
+				}
 			}
-	
 		}
-		catch(Exception e){
-			Limpiar();
-			displayText.setText("Error");
 
+	}
+
+	public String cOperacion(String cadena) {
+		String result = null;
+
+		final Pattern num1pattern = Pattern.compile("^-?\\d*(\\.\\d+)?", Pattern.DOTALL);
+		final Pattern num2pattern = Pattern.compile("\\d*(\\.\\d+)?$", Pattern.DOTALL);
+		final Pattern operandpattern = Pattern.compile("[+\\-*\\/]", Pattern.DOTALL);
+
+		final Matcher matchernum1 = num1pattern.matcher(expresion);
+		final Matcher matchernum2 = num2pattern.matcher(expresion);
+
+		matchernum1.find();
+		matchernum2.find();
+
+		Float n1 = Float.parseFloat(matchernum1.group(0));
+		Float n2 = Float.parseFloat(matchernum2.group(0));
+
+		System.out.println(n1);
+		System.out.println(n2);
+
+		
+		char operator;
+		if (n1 > 0) {
+			Matcher matcheroperand = operandpattern.matcher(cadena);
+			matcheroperand.find();
+			operator = matcheroperand.group(0).charAt(0);
+		}
+		else {
+			cadena = cadena.substring(1);
+			Matcher matcheroperand = operandpattern.matcher(cadena);
+			matcheroperand.find();
+			operator = matcheroperand.group(0).charAt(0);
 		}
 		
-	}
-
-	private Integer Evaluar(String n1, String n2, int o) {
-		Integer f1 = Integer.valueOf(n1);
-		Integer f2 = Integer.valueOf(n2);
-		Integer ans = 0;
-
-		if (o == 1) { // Addition
-			ans = f1 + f2;
-		} else if (o == 2) {
-			ans = f1 - f2;
-		} else if (o == 3) {
-			ans = f1 * f2;
-		} else if (o == 4) {
-			ans = f1 / f2;
+		
+		switch (operator) {
+		case '+':
+			result = Float.toString(n1 + n2);
+			break;
+		case '-':
+			result = Float.toString(n1 - n2);
+			break;
+		case '*':
+			result = Float.toString(n1 * n2);
+			break;
+		case '/':
+			if (n2 != 0) {
+				result = Float.toString(n1 / n2);
+				break;
+			} else {
+				result = "Operación inválida";
+				break;
+			}
 		}
-		Limpiar();
-		return ans;
-	}
 
-	public void Limpiar() {
-		number1 = "";
-		number2 = "";
-		operator = "";
-		op = 0;
+		
+		return result;
+
 	}
 }
