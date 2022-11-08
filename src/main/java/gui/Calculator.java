@@ -140,51 +140,59 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 		String expression = displayText.getText();
 		String[] operadores = new String[] { "+", "-", "*", "/" };
 
-		if (!Arrays.asList(operadores).contains(value) && value != "C" && value != "=") {
-			if (op == 0) {
-				number1 += value;
-				System.out.println(number1);
+		try {
+			if (!Arrays.asList(operadores).contains(value) && value != "C" && value != "=") {
+				if (op == 0) {
+					number1 += value;
+					displayText.setText(number1);
 
-			} else {
-				number2 += value;
-				System.out.println(number1 + operator + number2);
+				} else {
+					number2 += value;
+					displayText.setText(number1 + operator + number2);
+
+				}
+			} else if (Arrays.asList(operadores).contains(value) && op<1)  {
+				operator = value;
+				if (value == "+") {
+					op = 1;
+				} else if (value == "-") {
+					op = 2;
+				} else if (value == "*") {
+					op = 3;
+				} else {
+					op = 4;
+				}
+				displayText.setText(number1 + operator);
+			} else if (value == "C") {
+				Limpiar();
+				displayText.setText("");
+
+			} else if (value == "="){
+				displayText.setText(Evaluar(number1, number2, op).toString());
+			}else {
+				number1=Evaluar(number1, number2, op).toString();
+				number2="";
+				operator=value;
+				if (value == "+") {
+					op = 1;
+				} else if (value == "-") {
+					op = 2;
+				} else if (value == "*") {
+					op = 3;
+				} else {
+					op = 4;
+				}			
+				displayText.setText(number1 + operator);
 
 			}
-		} else if (Arrays.asList(operadores).contains(value) && op<1)  {
-			operator = value;
-			if (value == "+") {
-				op = 1;
-			} else if (value == "-") {
-				op = 2;
-			} else if (value == "*") {
-				op = 3;
-			} else {
-				op = 4;
-			}
-			System.out.println(number1 + operator);
-			displayText.setText("");
-		} else if (value == "C") {
+	
+		}
+		catch(Exception e){
 			Limpiar();
-		} else if (value == "="){
-			System.out.println(Evaluar(number1, number2, op));
-		}else {
-			number1=Evaluar(number1, number2, op).toString();
-			number2="";
-			operator=value;
-			if (value == "+") {
-				op = 1;
-			} else if (value == "-") {
-				op = 2;
-			} else if (value == "*") {
-				op = 3;
-			} else {
-				op = 4;
-			}			
-			System.out.println(number1 + operator);
-			displayText.setText("");
+			displayText.setText("Error");
 
 		}
-
+		
 	}
 
 	private Integer Evaluar(String n1, String n2, int o) {
@@ -210,6 +218,5 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 		number2 = "";
 		operator = "";
 		op = 0;
-
 	}
 }
