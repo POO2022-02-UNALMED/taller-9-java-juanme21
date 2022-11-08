@@ -20,6 +20,8 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 
 	String expresion = "";
 	Text displayText;
+	Float result  = 0f;
+
 
 	public Calculator() {
 		super(10);
@@ -151,7 +153,7 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 	}
 
 	public String cOperacion(String cadena) {
-		String result = null;
+		System.out.print(result);
 
 		final Pattern num1pattern = Pattern.compile("^-?\\d*(\\.\\d+)?", Pattern.DOTALL);
 		final Pattern num2pattern = Pattern.compile("\\d*(\\.\\d+)?$", Pattern.DOTALL);
@@ -159,53 +161,41 @@ public class Calculator extends VBox implements EventHandler<ActionEvent> {
 
 		final Matcher matchernum1 = num1pattern.matcher(expresion);
 		final Matcher matchernum2 = num2pattern.matcher(expresion);
+		final Matcher matcheroperand = operandpattern.matcher(expresion);
 
 		matchernum1.find();
 		matchernum2.find();
+		matcheroperand.find();
 
 		Float n1 = Float.parseFloat(matchernum1.group(0));
 		Float n2 = Float.parseFloat(matchernum2.group(0));
+		String operand = matcheroperand.group(0);
 
 		System.out.println(n1);
 		System.out.println(n2);
+		System.out.println(operand);
 
-		
-		char operator;
-		if (n1 > 0) {
-			Matcher matcheroperand = operandpattern.matcher(cadena);
-			matcheroperand.find();
-			operator = matcheroperand.group(0).charAt(0);
-		}
-		else {
-			cadena = cadena.substring(1);
-			Matcher matcheroperand = operandpattern.matcher(cadena);
-			matcheroperand.find();
-			operator = matcheroperand.group(0).charAt(0);
-		}
-		
-		
-		switch (operator) {
-		case '+':
-			result = Float.toString(n1 + n2);
-			break;
-		case '-':
-			result = Float.toString(n1 - n2);
-			break;
-		case '*':
-			result = Float.toString(n1 * n2);
-			break;
-		case '/':
-			if (n2 != 0) {
-				result = Float.toString(n1 / n2);
-				break;
-			} else {
-				result = "Operación inválida";
-				break;
-			}
-		}
 
-		
-		return result;
+		if (cadena.contains("+")) {
+			result = Float.sum(n1, n2);
+			System.out.println("Sumo");
+
+		} else if (cadena.contains("-")) {
+			result = n1 - n2;
+			System.out.println("resto");
+
+		} else if (cadena.contains("*")) {
+			result = n1 * n2;
+			System.out.println("multiplico");
+
+		} else if (cadena.contains("/")) {
+			result = n1 / n2;
+			System.out.println("divido");
+
+		}
+		String cadString = Float.toString(result);
+		result = 0f;
+		return cadString;
 
 	}
 }
